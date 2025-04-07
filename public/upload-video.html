@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ivy ✧ Upload Video</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="/css/custom.css" rel="stylesheet"> <!-- Stars later -->
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      color: #f5f5f5;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+    }
+    .glow-text {
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
+    }
+    .card {
+      background-color: rgba(30, 30, 30, 0.9);
+      border: 1px solid #8a2be2;
+      backdrop-filter: blur(10px);
+    }
+    .drop-area {
+      border: 2px dashed #8a2be2;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+    .drop-area.hover {
+      background-color: rgba(138, 43, 226, 0.3);
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+
+  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full">
+    <h1 class="text-4xl font-bold text-center mb-6 glow-text">Upload Video ✧</h1>
+
+    <div id="dropArea" class="drop-area">
+      <p class="text-purple-400">Drag & Drop a Video Link ✧ or Paste Below ✧</p>
+    </div>
+
+    <form id="videoForm" class="flex flex-col space-y-4 mt-6">
+      <input class="p-3 input-style rounded-lg bg-black bg-opacity-50 border border-purple-400 text-white" 
+             type="text" 
+             id="videoLink" 
+             placeholder="Paste a video URL ✦ (YouTube, TikTok, Vimeo)" required />
+
+      <button type="submit" class="p-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg text-white font-bold hover:from-pink-500 hover:to-purple-600">
+        Upload ✧
+      </button>
+    </form>
+
+    <a href="/profile.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Back to Profile ✧</a>
+  </div>
+
+  <script>
+    const dropArea = document.getElementById('dropArea');
+    const videoLinkInput = document.getElementById('videoLink');
+
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropArea.classList.add('hover');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+      dropArea.classList.remove('hover');
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('hover');
+
+      const text = e.dataTransfer.getData('text');
+      if (text) {
+        videoLinkInput.value = text;
+      }
+    });
+
+    document.getElementById('videoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const videoUrl = videoLinkInput.value.trim();
+      if (!videoUrl) {
+        alert('Please paste a video link!');
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('id');
+
+      if (!userId) {
+        alert('User ID missing!');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/upload-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, videoUrl })
+      });
+
+      const data = await response.text();
+      alert(data);
+
+      videoLinkInput.value = '';
+    });
+  </script>
+
+</body>
+</html>

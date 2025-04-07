@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ivy ✧ Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="/css/custom.css" rel="stylesheet"> <!-- Sparkles later -->
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      color: #f5f5f5;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+    }
+    .glow-text {
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
+    }
+    .card {
+      background-color: rgba(30, 30, 30, 0.9);
+      border: 1px solid #8a2be2;
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+
+  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full">
+    <h1 id="profileUsername" class="text-4xl font-bold text-center mb-6 glow-text">Loading... ✧</h1>
+
+    <img id="profilePicture" 
+         class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover"
+         src="/default-profile.jpg" 
+         alt="Profile Picture" />
+
+    <p id="profileBio" class="text-center text-purple-400 mb-2">✨ Bio loading...</p>
+    <p id="profileLocation" class="text-center text-pink-400 mb-6">🌎 Location loading...</p>
+
+    <h2 class="text-2xl font-bold text-center mb-4 glow-text">Your Posts ✧</h2>
+    <div id="userPosts" class="space-y-4"></div>
+
+    <a href="/feed.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Go to Feed ✧</a>
+  </div>
+
+  <script>
+    async function loadProfile() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('id');
+
+      if (!userId) {
+        alert('No user ID found!');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3000/profile/${userId}`);
+      const data = await response.json();
+
+      if (data.user) {
+        document.getElementById('profileUsername').innerText = data.user.username + ' ✧';
+
+        const profilePicElement = document.getElementById('profilePicture');
+        if (data.user.profilePic && data.user.profilePic.trim() !== '') {
+          profilePicElement.src = data.user.profilePic;
+        } else {
+          profilePicElement.src = '/default-profile.jpg';
+        }
+
+        document.getElementById('profileBio').innerText = data.user.bio ? `✨ ${data.user.bio}` : '✨ No bio yet';
+        document.getElementById('profileLocation').innerText = data.user.location ? `🌎 ${data.user.location}` : '🌎 Unknown location';
+
+        const postsContainer = document.getElementById('userPosts');
+        postsContainer.innerHTML = '';
+
+        data.posts.forEach(post => {
+          const postElement = document.createElement('div');
+          postElement.className = 'p-4 border border-purple-300 rounded-lg mb-4 bg-black bg-opacity-50';
+          postElement.innerText = post.content;
+          postsContainer.appendChild(postElement);
+        });
+
+      } else {
+        alert('User not found!');
+      }
+    }
+
+    // Load profile on page load
+    loadProfile();
+  </script>
+
+</body>
+</html>
