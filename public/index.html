@@ -50,7 +50,7 @@
       <input class="input-style p-3 rounded-lg" type="text" id="username" placeholder="Username ✦" required />
       <input class="input-style p-3 rounded-lg" type="email" id="email" placeholder="Email ✦" required />
       <input class="input-style p-3 rounded-lg" type="password" id="password" placeholder="Password ✦" required />
-      <input class="input-style p-3 rounded-lg" type="text" id="location" placeholder="Location ✦ (Optional)" />
+      <input class="input-style p-3 rounded-lg" type="text" id="location" placeholder="City, Country ✦ (Optional)" />
       <input class="input-style p-3 rounded-lg" type="text" id="bio" placeholder="Short Bio ✦ (Optional)" />
       
       <!-- Drag and Drop Profile Pic Zone -->
@@ -111,12 +111,12 @@
       const password = document.getElementById('password').value;
       const location = document.getElementById('location').value;
       const bio = document.getElementById('bio').value;
-      const profilePic = ''; // Placeholder (we will improve this later if needed)
+      const profilePic = document.getElementById('profilePicInput').value; // Placeholder (we will improve this later if needed)
 
       const response = await fetch('https://ivy-social-media.onrender.com/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, location, bio, profilePic })
+        body: JSON.stringify({ username, email, password, location, bio, profilePicInput })
       });
 
       const data = await response.json();

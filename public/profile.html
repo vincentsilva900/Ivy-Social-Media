@@ -26,66 +26,76 @@
 
 <body class="flex items-center justify-center min-h-screen">
 
-  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full">
-    <h1 id="profileUsername" class="text-4xl font-bold text-center mb-6 glow-text">Loading... ✧</h1>
-
-    <img id="profilePicture" 
-         class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover"
-         src="/default-profile.jpg" 
+  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full bg-opacity-80 bg-gradient-to-br from-black via-purple-900 to-black">
+    <h1 id="profileUsername" class="text-4xl font-bold text-center mb-6 glow-text text-purple-300">Loading... ✧</h1>
+  
+    <img id="profilePicture"
+         class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover shadow-lg"
+         src="/default-profile.jpg"
          alt="Profile Picture" />
-
-    <p id="profileBio" class="text-center text-purple-400 mb-2">✨ Bio loading...</p>
-    <p id="profileLocation" class="text-center text-pink-400 mb-6">🌎 Location loading...</p>
-
-    <h2 class="text-2xl font-bold text-center mb-4 glow-text">Your Posts ✧</h2>
+  
+    <p id="profileBio" class="text-center text-purple-400 mb-2 italic">✨ Bio loading...</p>
+    <p id="profileLocation" class="text-center text-pink-400 mb-6 italic">🌎 Location loading...</p>
+  
+    <h2 class="text-2xl font-bold text-center mb-4 glow-text text-pink-400">Your Posts ✧</h2>
     <div id="userPosts" class="space-y-4"></div>
-
+  
     <a href="/feed.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Go to Feed ✧</a>
   </div>
-
+  
   <script>
-    async function loadProfile() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('id');
-
-      if (!userId) {
-        alert('No user ID found!');
-        return;
-      }
-
-      const response = await fetch(`https://ivy-social-media.onrender.com/profile/${userId}`);
-      const data = await response.json();
-
-      if (data.user) {
-        document.getElementById('profileUsername').innerText = data.user.username + ' ✧';
-
-        const profilePicElement = document.getElementById('profilePicture');
-        if (data.user.profilePic && data.user.profilePic.trim() !== '') {
-          profilePicElement.src = data.user.profilePic;
-        } else {
-          profilePicElement.src = '/default-profile.jpg';
-        }
-
-        document.getElementById('profileBio').innerText = data.user.bio ? `✨ ${data.user.bio}` : '✨ No bio yet';
-        document.getElementById('profileLocation').innerText = data.user.location ? `🌎 ${data.user.location}` : '🌎 Unknown location';
-
-        const postsContainer = document.getElementById('userPosts');
-        postsContainer.innerHTML = '';
-
-        data.posts.forEach(post => {
-          const postElement = document.createElement('div');
-          postElement.className = 'p-4 border border-purple-300 rounded-lg mb-4 bg-black bg-opacity-50';
-          postElement.innerText = post.content;
-          postsContainer.appendChild(postElement);
-        });
-
-      } else {
-        alert('User not found!');
-      }
+  async function loadProfile() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+  
+    if (!userId) {
+      alert('No user ID found!');
+      return;
     }
-
-    // Load profile on page load
-    loadProfile();
+  
+    const response = await fetch(`https://ivy-social-media.onrender.com/profile/${userId}`);
+    const data = await response.json();
+  
+    if (data.user) {
+      // Update username
+      document.getElementById('profileUsername').innerText = `${data.user.username} ✧`;
+  
+      // Update profile picture
+      const profilePicElement = document.getElementById('profilePicture');
+      if (data.user.profilePic && data.user.profilePic.trim() !== '') {
+        profilePicElement.src = data.user.profilePic;
+      } else {
+        profilePicElement.src = '/default-profile.jpg';
+      }
+  
+      // Update bio
+      document.getElementById('profileBio').innerText = data.user.bio
+        ? `✨ ${data.user.bio}`
+        : '✨ No bio yet.';
+  
+      // Update location
+      document.getElementById('profileLocation').innerText = data.user.location
+        ? `🌎 ${data.user.location}`
+        : '🌎 Unknown location.';
+  
+      // Load posts
+      const postsContainer = document.getElementById('userPosts');
+      postsContainer.innerHTML = '';
+  
+      data.posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'p-4 border border-purple-300 rounded-lg mb-4 bg-black bg-opacity-50 text-white';
+        postElement.innerText = post.content;
+        postsContainer.appendChild(postElement);
+      });
+  
+    } else {
+      alert('User not found!');
+    }
+  }
+  
+  // Load everything when the page opens
+  loadProfile();
   </script>
 
 </body>
