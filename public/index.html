@@ -116,7 +116,7 @@
       const response = await fetch('https://ivy-social-media.onrender.com/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, location, bio, profilePicInput })
+        body: JSON.stringify({ username, email, password, location, bio, profilePic })
       });
 
       const data = await response.json();
