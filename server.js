@@ -25,8 +25,8 @@ const Post = mongoose.model('Post', {
 // ✧ SIGNUP
 app.post('/signup', async (req, res) => {
   try {
-    const { username, email, password, location, bio, profilePicInput } = req.body;
-    const newUser = new User({ username, email, password, location, bio, profilePicInput, friends: [], videos: [] });
+    const { username, email, password, location, bio, profilePic } = req.body;
+    const newUser = new User({ username, email, password, location, bio, profilePic: profilePic || undefined, friends: [], videos: [] });
     await newUser.save();
     res.json({ success: true, userId: newUser._id });
   } catch (err) {
