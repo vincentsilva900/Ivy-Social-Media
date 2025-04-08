@@ -1,5 +1,64 @@
 /* public/css/custom.css */
+
 body {
-    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
-    background-repeat: repeat;
-  }
+  background-attachment: fixed;
+}
+
+/* Glow on buttons */
+button {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px #8a2be2, 0 0 10px #8a2be2;
+}
+
+button:hover {
+  box-shadow: 0 0 20px #ff00ff, 0 0 30px #8a2be2;
+}
+
+/* Input focus glow */
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #ff00ff;
+  box-shadow: 0 0 10px #ff00ff;
+}
+
+/* Fancy text glow */
+.glow-text {
+  text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
+}
+
+/* Smooth card pop-up */
+.card {
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+/* Animate links */
+a {
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: #ff00ff;
+}
+
+/* Post box glow */
+textarea {
+  background: #000;
+  border: 1px solid #8a2be2;
+  color: #fff;
+  resize: none;
+}
+
+/* Sparkles on post box hover */
+textarea:hover {
+  box-shadow: 0 0 10px #ff00ff;
+}
+
+/* Cute divider line (optional) */
+hr {
+  border-top: 1px solid #8a2be2;
+  margin: 20px 0;
+}

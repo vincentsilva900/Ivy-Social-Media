@@ -6,53 +6,68 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+// Connect to MongoDB
+mongoose.connect('mongodb+srv://adminuserbaddie:plsALLDAY12345%21@cluster0.o5ssovo.mongodb.net/Ivy?retryWrites=true&w=majority&appName=Cluster0', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// MongoDB connection
-mongoose.connect('mongodb+srv://adminuserbaddie:plsALLDAY12345%21@cluster0.o5ssovo.mongodb.net/Ivy?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true, useUnifiedTopology: true });
+// Import User model
+const User = require('./models/User');
 
-// Load User and Post models
-const User = require('./models/user'); // Make sure you have the updated User.js!
+// Model for posts
 const Post = mongoose.model('Post', {
   userId: String,
   content: String,
   timestamp: Date
 });
 
-// ROUTES
-// ✧ SIGNUP
+// Signup Route
 app.post('/signup', async (req, res) => {
   try {
-    const { username, email, password, location, bio, profilePic } = req.body;
-    const newUser = new User({ username, email, password, location, bio, profilePic: profilePic || undefined, friends: [], videos: [] });
+    const { username, email, password, profilePic, bio, location } = req.body;
+    const newUser = new User({ username, email, password, profilePic, bio, location });
     await newUser.save();
-    res.json({ success: true, userId: newUser._id });
+    res.status(201).json({ success: true, userId: newUser._id });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
 });
 
-// ✧ LOGIN
+// Login Route
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user || user.password !== password) {
-      return res.status(400).json({ success: false, message: 'Invalid login' });
+
+    if (!user) {
+      return res.status(400).send('User not found.');
     }
+
+    if (user.password !== password) {
+      return res.status(400).send('Incorrect password.');
+    }
+
     res.json({ success: true, userId: user._id });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(400).send(err.message);
   }
 });
 
-// ✧ CREATE POST
+// Create a Post Route
 app.post('/create-post', async (req, res) => {
   try {
     const { userId, content } = req.body;
-    const newPost = new Post({ userId, content, timestamp: new Date() });
+    const newPost = new Post({
+      userId,
+      content,
+      timestamp: new Date()
+    });
     await newPost.save();
     res.status(201).send('Post created!');
   } catch (err) {
@@ -60,7 +75,7 @@ app.post('/create-post', async (req, res) => {
   }
 });
 
-// ✧ GET POSTS
+// Get all Posts
 app.get('/posts', async (req, res) => {
   try {
     const posts = await Post.find().sort({ timestamp: -1 });
@@ -70,7 +85,7 @@ app.get('/posts', async (req, res) => {
   }
 });
 
-// ✧ USER PROFILE
+// Get User Profile + Posts
 app.get('/profile/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -82,32 +97,16 @@ app.get('/profile/:userId', async (req, res) => {
   }
 });
 
-// ✧ UPLOAD VIDEO
-app.post('/upload-video', async (req, res) => {
-  try {
-    const { userId, videoUrl } = req.body;
-    const user = await User.findById(userId);
-    if (user) {
-      user.videos.push(videoUrl);
-      await user.save();
-      res.send('Video link saved!');
-    } else {
-      res.status(404).send('User not found');
-    }
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-// SOCKET.IO real-time (optional)
+// Real-time Post Updates (Socket.io - optional for later)
 io.on('connection', (socket) => {
   console.log('A user connected.');
 });
 
+// Root
 app.get('/', (req, res) => {
-  res.send('Welcome to Ivy ✧');
+  res.send('Welcome to Ivy Bestie!');
 });
 
-// PORT
+// Start Server
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
