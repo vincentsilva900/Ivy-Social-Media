@@ -5,12 +5,12 @@
   <title>Ivy ✧ Feed</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="/css/custom.css" rel="stylesheet"> <!-- Stars later -->
+  <link href="/css/custom.css" rel="stylesheet">
   <style>
     body {
       background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-      color: #f5f5f5;
       font-family: 'Orbitron', sans-serif;
+      color: #f5f5f5;
       overflow-x: hidden;
     }
     .glow-text {
@@ -24,32 +24,30 @@
   </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen space-y-6 p-4">
+<body class="flex items-center justify-center min-h-screen">
 
-  <h1 class="text-4xl font-bold text-center glow-text mt-10">Ivy ✧ Feed</h1>
+  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full bg-opacity-80 bg-gradient-to-br from-black via-purple-900 to-black">
+    <h1 class="text-4xl font-bold text-center mb-6 glow-text">Ivy ✧ Feed</h1>
 
-  <div class="card p-6 rounded-2xl shadow-2xl w-full max-w-2xl">
-    <h2 class="text-2xl font-bold text-center mb-6 glow-text">Latest Posts ✧</h2>
-
-    <form id="postForm" class="flex flex-col space-y-4 mb-10">
-      <textarea id="postContent" 
-                class="p-4 border border-purple-400 rounded-lg bg-black bg-opacity-50 text-white" 
-                placeholder="What's on your mind?" 
-                rows="3"></textarea>
-      <button type="submit" 
-              class="p-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg text-white font-bold hover:from-pink-500 hover:to-purple-600">
+    <form id="postForm" class="flex flex-col space-y-4 mb-8">
+      <textarea id="postContent" placeholder="What's on your mind, darling?" class="p-3 border-2 border-pink-400 rounded-lg resize-none bg-black text-white" rows="4"></textarea>
+      <button type="submit" class="p-3 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 text-white font-bold rounded-lg hover:from-blue-500 hover:to-purple-600">
         Post ✧
       </button>
     </form>
 
-    <div id="postsContainer" class="space-y-6"></div>
+    <div id="postsContainer" class="space-y-4"></div>
 
-    <a href="/profile.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Return to Profile ✧</a>
+    <a id="returnToProfile" href="#" class="block text-center mt-8 text-purple-400 underline hover:text-pink-400">
+      ⇢ Return to Profile ✧
+    </a>
   </div>
 
+  <!-- ✧ JavaScript Section ✧ -->
   <script>
+    // ✧ Load all posts ✧
     async function loadPosts() {
-      const response = await fetch('http://localhost:3000/posts');
+      const response = await fetch('https://ivy-social-media.onrender.com/posts');
       const posts = await response.json();
 
       const postsContainer = document.getElementById('postsContainer');
@@ -57,20 +55,21 @@
 
       posts.forEach(post => {
         const postElement = document.createElement('div');
-        postElement.className = 'p-4 border border-purple-300 rounded-lg bg-black bg-opacity-50';
+        postElement.className = 'p-4 border border-purple-300 rounded-lg bg-black bg-opacity-50 text-white';
         postElement.innerText = post.content;
         postsContainer.appendChild(postElement);
       });
     }
 
+    // ✧ Handle submitting a new post ✧
     document.getElementById('postForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const content = document.getElementById('postContent').value;
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('id') || 'guest'; // fallback
 
-      const response = await fetch('http://localhost:3000/create-post', {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('id') || 'guest'; // fallback guest if no ID
+
+      const response = await fetch('https://ivy-social-media.onrender.com/create-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, content })
@@ -83,7 +82,18 @@
       loadPosts();
     });
 
-    loadPosts(); // Load posts on page load
+    // ✧ Dynamically set Return to Profile link ✧
+    window.addEventListener('DOMContentLoaded', function () {
+      const userId = new URLSearchParams(window.location.search).get('id');
+      if (userId) {
+        document.getElementById('returnToProfile').href = `/profile.html?id=${userId}`;
+      } else {
+        console.error('No userId found to return to profile.');
+      }
+    });
+
+    // ✧ Load posts on page load ✧
+    loadPosts();
   </script>
 
 </body>
