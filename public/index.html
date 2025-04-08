@@ -26,6 +26,17 @@
       border: 1px solid #8a2be2;
       color: white;
     }
+    .drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.drop-area.highlight {
+  border-color: purple;
+}
   </style>
 </head>
 
@@ -46,89 +57,100 @@
     <hr class="my-6 border-purple-600">
 
     <!-- Signup Form -->
-    <form id="signupForm" class="flex flex-col space-y-4">
-      <input class="input-style p-3 rounded-lg" type="text" id="username" placeholder="Username ✦" required />
-      <input class="input-style p-3 rounded-lg" type="email" id="email" placeholder="Email ✦" required />
-      <input class="input-style p-3 rounded-lg" type="password" id="password" placeholder="Password ✦" required />
-      <input class="input-style p-3 rounded-lg" type="text" id="location" placeholder="City, Country ✦ (Optional)" />
-      <input class="input-style p-3 rounded-lg" type="text" id="bio" placeholder="Short Bio ✦ (Optional)" />
-      
-      <!-- Drag and Drop Profile Pic Zone -->
-      <div id="dropZone" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-purple-400 rounded-lg cursor-pointer hover:bg-purple-800 transition">
-        <p class="text-purple-400">Drag & Drop Profile Pic Here ✧</p>
-        <input type="file" id="profilePicInput" class="hidden" accept="image/*" />
-        <img id="previewImage" class="w-24 h-24 rounded-full mt-4 hidden" />
+    <form id="signupForm">
+      <input id="username" type="text" placeholder="Username" required>
+      <input id="email" type="email" placeholder="Email" required>
+      <input id="password" type="password" placeholder="Password" required>
+      <input id="location" type="text" placeholder="Location" required>
+      <input id="bio" type="text" placeholder="Bio" required>
+    
+      <!-- DRAG & DROP AREA for Profile Pic Upload -->
+      <div id="drop-area" class="drop-area">
+        <p>Drag & drop your profile picture here or click to upload</p>
+        <input type="file" id="fileElem" accept="image/*" style="display:none;">
+        <img id="profilePreview" src="/default-profile.jpg" class="w-32 h-32 rounded-full mx-auto mt-2" />
       </div>
-
-      <button type="submit" class="p-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg text-white font-bold hover:from-pink-500 hover:to-purple-600">
-        Sign Up ✧
-      </button>
+    
+      <button type="submit">Sign Up</button>
     </form>
+    
   </div>
 
   <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('profilePicInput');
-    const previewImage = document.getElementById('previewImage');
+    let uploadedProfilePic = ''; // this will hold the uploaded profile pic (base64 or url)
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('bg-purple-900');
-    });
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('bg-purple-900');
-    });
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('bg-purple-900');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        handleFile();
-      }
-    });
+// DRAG & DROP FEATURE
+const dropArea = document.getElementById('drop-area');
 
-    fileInput.addEventListener('change', handleFile);
+dropArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropArea.classList.add('highlight');
+});
 
-    function handleFile() {
-      const file = fileInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          previewImage.src = e.target.result;
-          previewImage.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+dropArea.addEventListener('dragleave', () => {
+  dropArea.classList.remove('highlight');
+});
 
-    // Signup Form Submission
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
+dropArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropArea.classList.remove('highlight');
+
+  const file = e.dataTransfer.files[0];
+  handleFile(file);
+});
+
+const fileInput = document.getElementById('fileElem');
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  handleFile(file);
+});
+
+// Handle File Upload
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    uploadedProfilePic = reader.result; // Save base64
+    document.getElementById('profilePreview').src = uploadedProfilePic; // Show preview
+  };
+  reader.readAsDataURL(file);
+}
+
+// SIGNUP FORM SUBMISSION
+const signupForm = document.getElementById('signupForm');
+
+signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const username = document.getElementById('usernameInput').value;
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  const location = document.getElementById('locationInput').value;
-  const bio = document.getElementById('bioInput').value;
-  const profilePic = document.getElementById('profilePicInput').value;
+  const username = document.getElementById('username').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const location = document.getElementById('location').value;
+  const bio = document.getElementById('bio').value;
 
   try {
     const response = await fetch('https://ivy-social-media.onrender.com/signup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password, location, bio, profilePic }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+        location,
+        bio,
+        profilePic: uploadedProfilePic
+      }),
     });
 
     const data = await response.json();
 
     if (response.ok && data.user && data.user._id) {
-      // Redirect to profile page with user ID
       window.location.href = `/profile.html?id=${data.user._id}`;
     } else {
       alert('Signup failed: ' + (data.message || 'Unknown error'));
     }
+
   } catch (err) {
     console.error(err);
     alert('Error signing up. Try again later.');
