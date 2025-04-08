@@ -57,22 +57,39 @@
     <hr class="my-6 border-purple-600">
 
     <!-- Signup Form -->
-    <form id="signupForm">
-      <input id="username" type="text" placeholder="Username" required>
-      <input id="email" type="email" placeholder="Email" required>
-      <input id="password" type="password" placeholder="Password" required>
-      <input id="location" type="text" placeholder="Location" required>
-      <input id="bio" type="text" placeholder="Bio" required>
+    <form id="signupForm" class="bg-gradient-to-br from-black via-purple-900 to-black p-8 rounded-xl shadow-2xl max-w-md w-full space-y-6">
+
+      <h1 class="text-3xl font-bold text-center text-purple-300 glow-text">Create Your Ivy Account ✧</h1>
+    
+      <input id="username" type="text" placeholder="Username" required
+        class="w-full p-3 rounded-lg bg-gray-800 border border-purple-400 placeholder-purple-300 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+    
+      <input id="email" type="email" placeholder="Email" required
+        class="w-full p-3 rounded-lg bg-gray-800 border border-purple-400 placeholder-purple-300 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+    
+      <input id="password" type="password" placeholder="Password" required
+        class="w-full p-3 rounded-lg bg-gray-800 border border-purple-400 placeholder-purple-300 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+    
+      <input id="location" type="text" placeholder="Location" required
+        class="w-full p-3 rounded-lg bg-gray-800 border border-purple-400 placeholder-purple-300 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+    
+      <input id="bio" type="text" placeholder="Bio" required
+        class="w-full p-3 rounded-lg bg-gray-800 border border-purple-400 placeholder-purple-300 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
     
       <!-- DRAG & DROP AREA for Profile Pic Upload -->
-      <div id="drop-area" class="drop-area">
-        <p>Drag & drop your profile picture here or click to upload</p>
+      <div id="drop-area" class="drop-area bg-gray-900 border-2 border-dashed border-purple-400 rounded-lg p-6 text-center cursor-pointer">
+        <p class="text-purple-300 mb-2">Drag & Drop your profile pic here or click to upload ✧</p>
         <input type="file" id="fileElem" accept="image/*" style="display:none;">
-        <img id="profilePreview" src="/default-profile.jpg" class="w-32 h-32 rounded-full mx-auto mt-2" />
+        <img id="profilePreview" src="/default-profile.jpg" class="w-24 h-24 rounded-full mx-auto mt-2 object-cover border-2 border-purple-400" />
       </div>
     
-      <button type="submit">Sign Up</button>
+      <button type="submit"
+        class="w-full bg-purple-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+        Sign Up ✧
+      </button>
+    
     </form>
+    
     
   </div>
 
