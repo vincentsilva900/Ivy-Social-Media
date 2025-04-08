@@ -121,7 +121,10 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   handleFile(file);
 });
-
+// Allow click to open file picker too
+dropArea.addEventListener('click', () => {
+  fileInput.click();
+});
 // Handle File Upload
 function handleFile(file) {
   const reader = new FileReader();
