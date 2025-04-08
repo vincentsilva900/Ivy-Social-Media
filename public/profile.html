@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Ivy ✧ Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- TailwindCSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="/css/custom.css" rel="stylesheet">
+
   <style>
     body {
       background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
@@ -32,7 +35,7 @@
     <img
       id="profilePicture"
       class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover shadow-lg"
-      src="/default-profile.jpg" <!-- <-- TEMP loading image, will change dynamically -->
+      src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
       alt="Profile Picture"
     />
 
@@ -45,7 +48,7 @@
     <a href="/feed.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Go to Feed ✧</a>
   </div>
 
-  <!-- SCRIPT TO LOAD PROFILE -->
+  <!-- SCRIPT -->
   <script>
     async function loadProfile() {
       try {
@@ -53,7 +56,7 @@
         const userId = urlParams.get('id');
 
         if (!userId) {
-          alert('No user ID found!');
+          alert('No user ID found in URL!');
           return;
         }
 
@@ -65,18 +68,28 @@
           return;
         }
 
-        // Update profile elements dynamically
+        // Update username
         document.getElementById('profileUsername').innerText = `${data.user.username || 'Unknown User'} ✧`;
 
+        // Update profile picture
         const profilePicture = document.getElementById('profilePicture');
-        profilePicture.src = (data.user.profilePic && data.user.profilePic.trim() !== '')
-          ? data.user.profilePic
-          : '/default-profile.jpg';
+        if (data.user.profilePic && data.user.profilePic.trim() !== '') {
+          profilePicture.src = data.user.profilePic;
+        } else {
+          profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; // Default fallback
+        }
 
+        // If the user's image fails to load, fall back automatically
+        profilePicture.onerror = function() {
+          this.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+        };
+
+        // Update bio
         document.getElementById('profileBio').innerText = data.user.bio
           ? `✨ ${data.user.bio}`
           : '✨ No bio yet.';
 
+        // Update location
         document.getElementById('profileLocation').innerText = data.user.location
           ? `🌎 ${data.user.location}`
           : '🌎 Unknown location.';
@@ -102,7 +115,7 @@
       }
     }
 
-    // Load the profile data when the page loads
+    // Auto run when page loads
     document.addEventListener('DOMContentLoaded', loadProfile);
   </script>
 
