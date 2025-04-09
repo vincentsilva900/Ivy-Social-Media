@@ -47,7 +47,7 @@
   <script>
     // ✧ Load all posts ✧
     async function loadPosts() {
-      const response = await fetch('https://ivy-social-media.onrender.com/posts');
+      const response = await fetch('https://ivy-social-cloud.onrender.com/posts');
       const posts = await response.json();
 
       const postsContainer = document.getElementById('postsContainer');
@@ -69,7 +69,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const userId = urlParams.get('id') || 'guest'; // fallback guest if no ID
 
-      const response = await fetch('https://ivy-social-media.onrender.com/create-post', {
+      const response = await fetch('https://ivy-social-cloud.onrender.com/create-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, content })
