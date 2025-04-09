@@ -37,9 +37,10 @@ app.post('/signup', upload.single('profilePic'), async (req, res) => {
     const profilePic = req.file ? '/uploads/' + req.file.filename : '/images/default-profile.jpg';
     const newUser = new User({ username, email, password, profilePic, bio, location });
     await newUser.save();
-    res.status(201).json({ message: 'Signup successful', userId: newUser._id });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(201).json({ success: true, userId: newUser._id });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
