@@ -1,12 +1,13 @@
+require('dotenv').config();
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://adminuserbaddie:plsALLDAY12345%21@cluster0.o5ssovo.mongodb.net/Ivy?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -26,9 +27,9 @@ mongoose.connect('mongodb+srv://adminuserbaddie:plsALLDAY12345%21@cluster0.o5sso
 
 // Cloudinary Config
 cloudinary.config({
-  cloud_name: 'dxrz0wngs',
-  api_key: '869754488195924',
-  api_secret: 'QKZuJgygOElZU7c0kydPCNqBnmQ',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Cloudinary Storage Setup
