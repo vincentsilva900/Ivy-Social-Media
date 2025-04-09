@@ -2,90 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ivy ✧ Welcome</title>
+  <title>Ivy ✧ Login / Signup</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="/css/custom.css" rel="stylesheet"> <!-- ✧ optional custom styles -->
+  <link href="/css/custom.css" rel="stylesheet">
   <style>
     body {
       background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
       font-family: 'Orbitron', sans-serif;
-      color: #f5f5f5;
+      color: #fff;
       overflow-x: hidden;
-    }
-    .glow-text {
-      text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
-    }
-    .card {
-      background-color: rgba(30, 30, 30, 0.9);
-      border: 1px solid #8a2be2;
-      backdrop-filter: blur(10px);
     }
   </style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen">
 
-  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full bg-opacity-80 bg-gradient-to-br from-black via-purple-900 to-black">
-    <h1 class="text-4xl font-bold text-center mb-6 glow-text">Welcome to Ivy ✧</h1>
+  <div class="bg-black bg-opacity-70 p-8 rounded-lg shadow-lg max-w-md w-full border border-purple-600">
+    <h1 class="text-4xl font-bold text-center mb-6 glow-text">Welcome to Ivy ✨</h1>
 
     <!-- Signup Form -->
-    <form id="signupForm" class="flex flex-col space-y-4 mb-8">
-      <input type="text" id="usernameInput" placeholder="Username" class="p-2 border rounded bg-black text-white" required />
-      <input type="email" id="emailInput" placeholder="Email" class="p-2 border rounded bg-black text-white" required />
-      <input type="password" id="passwordInput" placeholder="Password" class="p-2 border rounded bg-black text-white" required />
-      <input type="text" id="profilePicInput" placeholder="Profile Picture URL" class="p-2 border rounded bg-black text-white" />
-      <input type="text" id="bioInput" placeholder="Bio" class="p-2 border rounded bg-black text-white" />
-      <input type="text" id="locationInput" placeholder="Location" class="p-2 border rounded bg-black text-white" />
-      <button type="submit" class="p-3 bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-500 text-white font-bold rounded-lg hover:from-purple-500 hover:to-pink-500">
-        Create ✧
-      </button>
+    <form id="signupForm" enctype="multipart/form-data" class="flex flex-col space-y-4">
+      <input type="text" id="signupUsername" placeholder="Username ✧" required class="p-2 border rounded">
+      <input type="email" id="signupEmail" placeholder="Email ✧" required class="p-2 border rounded">
+      <input type="password" id="signupPassword" placeholder="Password ✧" required class="p-2 border rounded">
+      <input type="text" id="signupBio" placeholder="Short Bio ✧" class="p-2 border rounded">
+      <input type="text" id="signupLocation" placeholder="Location ✧" class="p-2 border rounded">
+      <label class="text-purple-400">Profile Picture (drag or select)</label>
+      <input type="file" id="signupProfilePic" accept="image/*" class="p-2 border rounded bg-white text-black">
+      <button type="submit" class="p-2 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded hover:from-pink-400 hover:to-purple-500">Create Account ✧</button>
     </form>
+
+    <hr class="my-6 border-purple-400">
 
     <!-- Login Form -->
     <form id="loginForm" class="flex flex-col space-y-4">
-      <input type="email" id="loginEmail" placeholder="Email" class="p-2 border rounded bg-black text-white" required />
-      <input type="password" id="loginPassword" placeholder="Password" class="p-2 border rounded bg-black text-white" required />
-      <button type="submit" class="p-3 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 text-white font-bold rounded-lg hover:from-blue-500 hover:to-purple-600">
-        Manifest ✧
-      </button>
+      <input type="email" id="loginEmail" placeholder="Email ✧" required class="p-2 border rounded">
+      <input type="password" id="loginPassword" placeholder="Password ✧" required class="p-2 border rounded">
+      <button type="submit" class="p-2 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold rounded hover:from-blue-400 hover:to-green-500">Login ✧</button>
     </form>
 
   </div>
 
   <!-- ✧ JavaScript ✧ -->
   <script>
-    // Signup Handler
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const username = document.getElementById('usernameInput').value;
-      const email = document.getElementById('emailInput').value;
-      const password = document.getElementById('passwordInput').value;
-      const profilePic = document.getElementById('profilePicInput').value;
-      const bio = document.getElementById('bioInput').value;
-      const location = document.getElementById('locationInput').value;
+      const formData = new FormData();
+      formData.append('username', document.getElementById('signupUsername').value);
+      formData.append('email', document.getElementById('signupEmail').value);
+      formData.append('password', document.getElementById('signupPassword').value);
+      formData.append('bio', document.getElementById('signupBio').value);
+      formData.append('location', document.getElementById('signupLocation').value);
+      formData.append('profilePic', document.getElementById('signupProfilePic').files[0]);
 
       const response = await fetch('https://ivy-social-media.onrender.com/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, profilePic, bio, location })
+        body: formData
       });
 
       const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('userId', data.userId);
-        window.location.href = `/feed.html?id=${data.userId}`;
+      if (data.userId) {
+        window.location.href = `/profile.html?id=${data.userId}`;
       } else {
-        alert('Signup failed: ' + data.message);
+        alert('Signup failed: ' + data.error);
       }
     });
 
-    // Login Handler
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
 
@@ -96,12 +81,10 @@
       });
 
       const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('userId', data.userId);
-        window.location.href = `/feed.html?id=${data.userId}`;
+      if (data.userId) {
+        window.location.href = `/profile.html?id=${data.userId}`;
       } else {
-        alert('Login failed.');
+        alert('Login failed: ' + data.error);
       }
     });
   </script>

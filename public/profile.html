@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ivy ✧ Profile</title>
+  <title>Ivy ✧ Your Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="/css/custom.css" rel="stylesheet">
@@ -10,45 +10,51 @@
     body {
       background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
       font-family: 'Orbitron', sans-serif;
-      color: #f5f5f5;
+      color: #fff;
       overflow-x: hidden;
-    }
-    .glow-text {
-      text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
-    }
-    .card {
-      background-color: rgba(30, 30, 30, 0.9);
-      border: 1px solid #8a2be2;
-      backdrop-filter: blur(10px);
     }
   </style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen">
 
-  <div class="card p-8 rounded-2xl shadow-2xl max-w-md w-full bg-opacity-80 bg-gradient-to-br from-black via-purple-900 to-black">
-    <h1 id="profileUsername" class="text-4xl font-bold text-center mb-6 glow-text">Loading... ✧</h1>
+  <div class="bg-black bg-opacity-70 p-8 rounded-lg shadow-lg max-w-2xl w-full border border-purple-600">
+    <h1 id="profileUsername" class="text-4xl font-bold text-center mb-4 glow-text">Loading Profile ✧</h1>
 
-    <img id="profilePicture"
-         class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover shadow-lg"
-         src="/images/default-profile.jpg"
-         alt="Profile Picture" />
+    <!-- Profile Picture -->
+    <img id="profilePicture" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover" src="/images/default-profile.jpg" alt="Profile Picture">
+    <input type="file" id="uploadProfilePic" accept="image/*" class="block mx-auto mb-6">
 
+    <!-- Bio & Location -->
     <p id="profileBio" class="text-center text-purple-400 mb-2 italic">✨ Bio loading...</p>
     <p id="profileLocation" class="text-center text-pink-400 mb-6 italic">🌎 Location loading...</p>
 
-    <h2 class="text-2xl font-bold text-center mb-4 glow-text text-pink-400">Your Posts ✧</h2>
+    <!-- Music Player -->
+    <audio id="profileMusic" class="w-full mb-6" controls>
+      <source id="musicSource" src="" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+    <input type="file" id="uploadMusic" accept="audio/*" class="block mx-auto mb-8">
+
+    <!-- Status Post -->
+    <form id="postForm" class="flex flex-col space-y-4">
+      <textarea id="postContent" placeholder="Post your status ✧" class="p-2 border rounded bg-gray-800 text-white resize-none"></textarea>
+      <button type="submit" class="p-2 bg-gradient-to-r from-green-400 to-purple-500 text-white rounded hover:from-purple-400 hover:to-pink-500">Post Status ✧</button>
+    </form>
+
+    <!-- Your Posts -->
+    <h2 class="text-2xl text-center font-bold mt-8 mb-4 text-pink-400">Your Posts ✧</h2>
     <div id="userPosts" class="space-y-4"></div>
 
-    <a href="/feed.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇠ Go to Feed ✧</a>
+    <a href="/feed.html" class="block text-center mt-8 text-purple-500 underline hover:text-pink-400">⇢ Go to Public Status Board ✧</a>
   </div>
 
   <!-- ✧ JavaScript ✧ -->
   <script>
-    async function loadProfile() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('id');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
 
+    async function loadProfile() {
       if (!userId) {
         alert('No user ID found!');
         return;
@@ -58,37 +64,76 @@
       const data = await response.json();
 
       if (data.user) {
-        document.getElementById('profileUsername').innerText = `${data.user.username} ✧`;
+        document.getElementById('profileUsername').innerText = data.user.username + ' ✧';
+        document.getElementById('profileBio').innerText = data.user.bio ? `✨ ${data.user.bio}` : '✨ No bio yet.';
+        document.getElementById('profileLocation').innerText = data.user.location ? `🌎 ${data.user.location}` : '🌎 Unknown location.';
 
         const profilePicElement = document.getElementById('profilePicture');
-        if (data.user.profilePic && data.user.profilePic.trim() !== '') {
-          profilePicElement.src = data.user.profilePic;
-        } else {
-          profilePicElement.src = '/images/default-profile.jpg';
+        profilePicElement.src = data.user.profilePic || '/images/default-profile.jpg';
+
+        const musicSource = document.getElementById('musicSource');
+        if (data.user.music) {
+          musicSource.src = data.user.music;
+          document.getElementById('profileMusic').load();
         }
-
-        document.getElementById('profileBio').innerText = data.user.bio
-          ? `✨ ${data.user.bio}`
-          : '✨ No bio yet.';
-
-        document.getElementById('profileLocation').innerText = data.user.location
-          ? `🌎 ${data.user.location}`
-          : '🌎 Unknown location.';
 
         const postsContainer = document.getElementById('userPosts');
         postsContainer.innerHTML = '';
-
         data.posts.forEach(post => {
           const postElement = document.createElement('div');
-          postElement.className = 'p-4 border border-purple-300 rounded-lg bg-black bg-opacity-50 text-white';
+          postElement.className = 'p-4 border border-purple-300 rounded-lg mb-2 bg-gray-900 text-white';
           postElement.innerText = post.content;
           postsContainer.appendChild(postElement);
         });
-
       } else {
         alert('User not found!');
       }
     }
+
+    // Upload Profile Picture
+    document.getElementById('uploadProfilePic').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('profilePic', file);
+      formData.append('userId', userId);
+
+      await fetch('https://ivy-social-media.onrender.com/upload-profile-pic', {
+        method: 'POST',
+        body: formData
+      });
+      alert('Profile picture updated!');
+      location.reload();
+    });
+
+    // Upload Music
+    document.getElementById('uploadMusic').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('musicFile', file);
+      formData.append('userId', userId);
+
+      await fetch('https://ivy-social-media.onrender.com/upload-music', {
+        method: 'POST',
+        body: formData
+      });
+      alert('Music updated!');
+      location.reload();
+    });
+
+    // Post Status
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = document.getElementById('postContent').value;
+
+      await fetch('https://ivy-social-media.onrender.com/create-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, content })
+      });
+
+      alert('Status posted!');
+      location.reload();
+    });
 
     loadProfile();
   </script>
