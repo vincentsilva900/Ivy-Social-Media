@@ -7,6 +7,7 @@ const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
 const path = require('path');
+const { cloudinary, storage, multerUpload } = require('./cloudinary');
 
 
 const app = express();
@@ -49,7 +50,7 @@ const User = require('./models/User');
 const Post = require('./models/Post');
 
 // Signup Route (Upload to Cloudinary)
-app.post('/signup', upload.single('profilePic'), async (req, res) => {
+app.post('/signup', multerUpload.single('profilePic'), async (req, res) => {
   try {
     const { username, email, password, bio, location } = req.body;
     const profilePic = req.file ? req.file.path : '/images/default-profile.jpg';
@@ -72,7 +73,7 @@ app.post('/signup', upload.single('profilePic'), async (req, res) => {
 });
 
 // Upload music file (same setup later if you want to do it)
-app.post('/upload-music', upload.single('musicFile'), async (req, res) => {
+app.post('/upload-music', multerUpload.single('musicFile'), async (req, res) => {
   try {
     const userId = req.body.userId;
     const musicLink = req.file.path;
