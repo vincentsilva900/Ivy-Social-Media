@@ -3,8 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const { v2: cloudinary } = require('cloudinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
 const path = require('path');
 const { cloudinary, storage, multerUpload } = require('./cloudinary');
@@ -19,7 +17,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -33,14 +31,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Cloudinary Storage Setup
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ivy_uploads',  // You can call the folder whatever you want
-    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'mp4', 'mp3'],
-  },
-});
 
 // Multer setup to use Cloudinary
 const upload = multer({ storage: storage });
