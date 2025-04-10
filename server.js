@@ -45,7 +45,8 @@ app.post('/signup', multerUpload.single('profilePic'), async (req, res) => {
 
     if (req.file) {
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'ivy-profile-pics'
+        folder: 'ivy-profile-pics',
+        resource_type: 'image'
       });
       profilePicUrl = uploadResult.secure_url;  // URL from Cloudinary
     }
