@@ -1,15 +1,23 @@
 {
-  "name": "ivy",
+  "name": "ivy-social-media",
   "version": "1.0.0",
+  "description": "Ivy Social Media - Cloud Powered ✨",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ivy",
+    "social",
+    "cloudinary",
+    "mongodb",
+    "express",
+    "socket.io",
+    "multer"
+  ],
+  "author": "VINCE",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",

@@ -2,7 +2,6 @@ require('dotenv').config();
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const { cloudinary, storage, multerUpload } = require('./cloudinary');
@@ -32,30 +31,38 @@ cloudinary.config({
 });
 
 
-// Multer setup to use Cloudinary
-const upload = multer({ storage: storage });
-
 // Load Models
 const User = require('./models/User');
 const Post = require('./models/Post');
 
 // Signup Route (Upload to Cloudinary)
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // temporary save
+
 app.post('/signup', multerUpload.single('profilePic'), async (req, res) => {
   try {
-    const { username, email, password, bio, location } = req.body;
-    const profilePic = req.file ? req.file.path : '/images/default-profile.jpg';
+    let profilePicUrl = '/images/default-profile.jpg'; // fallback default
 
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'ivy-profile-pics'
+      });
+      profilePicUrl = uploadResult.secure_url;  // URL from Cloudinary
+    }
+
+    const { username, email, password, bio, location } = req.body;
     const newUser = new User({
       username,
       email,
       password,
-      profilePic,
+      profilePic: profilePicUrl,
       bio,
-      location,
+      location
     });
 
     await newUser.save();
     res.status(201).json({ success: true, userId: newUser._id });
+
   } catch (err) {
     console.error(err);
     res.status(400).json({ success: false, message: err.message });
