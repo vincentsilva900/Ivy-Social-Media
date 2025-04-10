@@ -30,7 +30,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
 // Load Models
 const User = require('./models/User');
 const Post = require('./models/Post');

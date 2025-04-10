@@ -25,16 +25,19 @@
     <img id="profilePicture" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400 object-cover" src="/images/default-profile.jpg" alt="Profile Picture">
     <input type="file" id="uploadProfilePic" accept="image/*" class="block mx-auto mb-6">
 
-    <!-- Bio & Location -->
-    <p id="profileBio" class="text-center text-purple-400 mb-2 italic">✨ Bio loading...</p>
-    <p id="profileLocation" class="text-center text-pink-400 mb-6 italic">🌎 Location loading...</p>
-
-    <!-- Music Player -->
-    <audio id="profileMusic" class="w-full mb-6" controls>
+  <!-- ✧ Music Player ✧ -->
+  <div class="mt-8 text-center">
+    <h2 class="text-2xl font-bold text-pink-400 mb-4">Your Theme Song ✧</h2>
+  
+    <audio id="profileMusic" controls class="w-full">
       <source id="musicSource" src="" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
-    <input type="file" id="uploadMusic" accept="audio/*" class="block mx-auto mb-8">
+  </div>
+    
+  <!-- Bio & Location -->
+    <p id="profileBio" class="text-center text-purple-400 mb-2 italic">✨ Bio loading...</p>
+    <p id="profileLocation" class="text-center text-pink-400 mb-6 italic">🌎 Location loading...</p>
 
     <!-- Status Post -->
     <form id="postForm" class="flex flex-col space-y-4">
@@ -51,91 +54,67 @@
 
   <!-- ✧ JavaScript ✧ -->
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('id');
+  
 
-    async function loadProfile() {
-      if (!userId) {
-        alert('No user ID found!');
-        return;
-      }
+  async function loadProfile() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const userId = urlParams.get('id');
 
-      const response = await fetch(`https://ivy-social-cloud.onrender.com/profile/${userId}`);
-      const data = await response.json();
+  if (!userId) {
+    alert('No user ID found!');
+    return;
+  }
 
-      if (data.user) {
-        document.getElementById('profileUsername').innerText = data.user.username + ' ✧';
-        document.getElementById('profileBio').innerText = data.user.bio ? `✨ ${data.user.bio}` : '✨ No bio yet.';
-        document.getElementById('profileLocation').innerText = data.user.location ? `🌎 ${data.user.location}` : '🌎 Unknown location.';
+  const response = await fetch(`https://ivy-social-media.onrender.com/profile/${userId}`);
+  const data = await response.json();
 
-        const profilePicElement = document.getElementById('profilePicture');
-        profilePicElement.src = data.user.profilePic || '/images/default-profile.jpg';
+  if (data.user) {
+    // ✧ Update Username
+    document.getElementById('profileUsername').innerText = `${data.user.username} ✧`;
 
-        const musicSource = document.getElementById('musicSource');
-        if (data.user.music) {
-          musicSource.src = data.user.music;
-          document.getElementById('profileMusic').load();
-        }
-
-        const postsContainer = document.getElementById('userPosts');
-        postsContainer.innerHTML = '';
-        data.posts.forEach(post => {
-          const postElement = document.createElement('div');
-          postElement.className = 'p-4 border border-purple-300 rounded-lg mb-2 bg-gray-900 text-white';
-          postElement.innerText = post.content;
-          postsContainer.appendChild(postElement);
-        });
-      } else {
-        alert('User not found!');
-      }
+    // ✧ Update Profile Picture
+    const profilePicElement = document.getElementById('profilePicture');
+    if (data.user.profilePic && data.user.profilePic.trim() !== '') {
+      profilePicElement.src = data.user.profilePic;
+    } else {
+      profilePicElement.src = '/images/default-profile.jpg';
     }
 
-    // Upload Profile Picture
-    document.getElementById('uploadProfilePic').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      const formData = new FormData();
-      formData.append('profilePic', file);
-      formData.append('userId', userId);
+    // ✧ Update Bio + Location
+    document.getElementById('profileBio').innerText = data.user.bio
+      ? `✨ ${data.user.bio}`
+      : '✨ No bio yet.';
 
-      await fetch('https://ivy-social-cloud.onrender.com/upload-profile-pic', {
-        method: 'POST',
-        body: formData
-      });
-      alert('Profile picture updated!');
-      location.reload();
+    document.getElementById('profileLocation').innerText = data.user.location
+      ? `🌎 ${data.user.location}`
+      : '🌎 Unknown location.';
+
+    // ✧ ✧ ✧ NEW ✧ Update Music ✧ ✧ ✧
+    const musicSource = document.getElementById('musicSource');
+    if (data.user.music && data.user.music.trim() !== '') {
+      musicSource.src = data.user.music;
+      document.getElementById('profileMusic').load(); // load the new music
+    } else {
+      musicSource.src = '';
+    }
+
+    // ✧ Load Posts
+    const postsContainer = document.getElementById('userPosts');
+    postsContainer.innerHTML = '';
+
+    data.posts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.className = 'p-4 border border-purple-300 rounded-lg mb-4 bg-black bg-opacity-50 text-white';
+      postElement.innerText = post.content;
+      postsContainer.appendChild(postElement);
     });
 
-    // Upload Music
-    document.getElementById('uploadMusic').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      const formData = new FormData();
-      formData.append('musicFile', file);
-      formData.append('userId', userId);
+  } else {
+    alert('User not found!');
+  }
+}
 
-      await fetch('https://ivy-social-cloud.onrender.com/upload-music', {
-        method: 'POST',
-        body: formData
-      });
-      alert('Music updated!');
-      location.reload();
-    });
-
-    // Post Status
-    document.getElementById('postForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const content = document.getElementById('postContent').value;
-
-      await fetch('https://ivy-social-cloud.onrender.com/create-post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, content })
-      });
-
-      alert('Status posted!');
-      location.reload();
-    });
-
-    loadProfile();
+loadProfile();
   </script>
 
 </body>
