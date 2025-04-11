@@ -38,7 +38,7 @@
 
     <div id="postsContainer" class="space-y-4"></div>
 
-    <a id="returnToProfile" href="#" class="block text-center mt-8 text-purple-400 underline hover:text-pink-400">
+    <a id="returnToProfile" href="/profile.html" class="block text-center mt-8 text-purple-400 underline hover:text-pink-400">
       ⇢ Return to Profile ✧
     </a>
   </div>
@@ -47,7 +47,7 @@
   <script>
     // ✧ Load all posts ✧
     async function loadPosts() {
-      const response = await fetch('https://ivy-social-cloud.onrender.com/posts');
+      const response = await fetch('https://ivy-social-media.onrender.com.com/posts');
       const posts = await response.json();
 
       const postsContainer = document.getElementById('postsContainer');
@@ -69,7 +69,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const userId = urlParams.get('id') || 'guest'; // fallback guest if no ID
 
-      const response = await fetch('https://ivy-social-cloud.onrender.com/create-post', {
+      const response = await fetch('https://ivy-social-media.onrender.com/create-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, content })
