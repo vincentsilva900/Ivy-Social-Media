@@ -1,57 +1,51 @@
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const multer = require('multer');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
+const multer = require('multer');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const path = require('path');
-require('dotenv').config(); // <<< Loads your .env file
-const app = express();
+require('dotenv').config(); // For .env secret keys
 
-// Setup port
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB Connected!'))
-.catch(err => console.error('❌ MongoDB Connection Error:', err));
-
-// Setup CORS and JSON
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads')); // Static serving for uploads
 
-// Cloudinary Configuration
+// Connect MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB Connected!'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cloudinary Storage Setup
+// Multer Storage for Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'IvyUploads',  // Folder name inside Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'mp3', 'mp4'],
+    folder: 'ivy_uploads',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'mp3', 'mp4'],
   },
 });
 
-// Multer for file uploads
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
-// Import User Model
+// Models
 const User = require('./models/User');
-const Post = require('./models/Post');
 
-
-// Routes
-// Signup route
+// Signup Route
 app.post('/signup', upload.single('profilePic'), async (req, res) => {
   try {
     const { username, email, password, bio, location } = req.body;
@@ -65,11 +59,13 @@ app.post('/signup', upload.single('profilePic'), async (req, res) => {
   }
 });
 
-// Upload Music route
+// Upload Music Route
 app.post('/upload-music', upload.single('musicFile'), async (req, res) => {
   try {
     const userId = req.body.userId;
-    const musicLink = req.file.path; // Save Cloudinary music link
+    const musicLink = req.file ? req.file.path : null;
+    if (!musicLink) throw new Error('No music uploaded.');
+
     await User.findByIdAndUpdate(userId, { music: musicLink });
     res.status(200).send('Music uploaded!');
   } catch (error) {
@@ -77,44 +73,23 @@ app.post('/upload-music', upload.single('musicFile'), async (req, res) => {
   }
 });
 
-// Fetch profile
+// Profile route
 app.get('/profile/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId);
-    const posts = await Post.find({ userId }).sort({ timestamp: -1 });
+    const posts = []; // You can fetch posts later
+
     res.json({ user, posts });
   } catch (err) {
     res.status(400).send(err.message);
   }
 });
 
-// Create post
-app.post('/create-post', async (req, res) => {
-  try {
-    const { userId, content } = req.body;
-    const newPost = new Post({ userId, content, timestamp: new Date() });
-    await newPost.save();
-    res.status(201).send('Post created!');
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-// Get all posts
-app.get('/feed', async (req, res) => {
-  try {
-    const posts = await Post.find().sort({ timestamp: -1 });
-    res.json(posts);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-// Serve index.html
+// Home Route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Start Server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

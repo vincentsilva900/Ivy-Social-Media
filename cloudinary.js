@@ -1,7 +1,8 @@
 // cloudinary.js
-const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+require('dotenv').config(); 
 
 // Configure Cloudinary with your own credentials
 cloudinary.config({
@@ -15,12 +16,9 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'ivy_uploads', // This is the folder it will save inside Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg', 'mp3', 'mp4'],
-  },
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'mp3', 'mp4', 'webm'],
+    transformation: [{ width:500, height: 500, crop: 'limit' }]
+  }
 });
 
-const multerUpload = multer({ storage: storage });
-module.exports = { 
-    cloudinary, 
-    storage,
-    multerUpload }; 
+module.exports = { cloudinary,  storage,}; 
