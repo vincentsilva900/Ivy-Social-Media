@@ -1,79 +1,75 @@
-require('dotenv').config();
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
 const path = require('path');
-const { cloudinary, storage, multerUpload } = require('./cloudinary');
-
-
+require('dotenv').config(); // <<< Loads your .env file
 const app = express();
+
+// Setup port
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB Connected!'))
+.catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+// Setup CORS and JSON
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads')); // Static serving for uploads
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB Connected!'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-// Cloudinary Config
+// Cloudinary Configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Load Models
+// Cloudinary Storage Setup
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'IvyUploads',  // Folder name inside Cloudinary
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'mp3', 'mp4'],
+  },
+});
+
+// Multer for file uploads
+const upload = multer({ storage });
+
+// Import User Model
 const User = require('./models/User');
 const Post = require('./models/Post');
 
-// Signup Route (Upload to Cloudinary)
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // temporary save
 
-app.post('/signup', multerUpload.single('profilePic'), async (req, res) => {
+// Routes
+// Signup route
+app.post('/signup', upload.single('profilePic'), async (req, res) => {
   try {
-    let profilePicUrl = '/images/default-profile.jpg'; // fallback default
-
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'ivy-profile-pics',
-        resource_type: 'image'
-      });
-      profilePicUrl = uploadResult.secure_url;  // URL from Cloudinary
-    }
-
     const { username, email, password, bio, location } = req.body;
-    const newUser = new User({
-      username,
-      email,
-      password,
-      profilePic: profilePicUrl,
-      bio,
-      location
-    });
-
+    const profilePic = req.file ? req.file.path : '/images/default-profile.jpg';
+    const newUser = new User({ username, email, password, profilePic, bio, location });
     await newUser.save();
     res.status(201).json({ success: true, userId: newUser._id });
-
   } catch (err) {
     console.error(err);
     res.status(400).json({ success: false, message: err.message });
   }
 });
 
-// Upload music file (same setup later if you want to do it)
-app.post('/upload-music', multerUpload.single('musicFile'), async (req, res) => {
+// Upload Music route
+app.post('/upload-music', upload.single('musicFile'), async (req, res) => {
   try {
     const userId = req.body.userId;
-    const musicLink = req.file.path;
+    const musicLink = req.file.path; // Save Cloudinary music link
     await User.findByIdAndUpdate(userId, { music: musicLink });
     res.status(200).send('Music uploaded!');
   } catch (error) {
@@ -115,12 +111,10 @@ app.get('/feed', async (req, res) => {
   }
 });
 
-// Serve Home Page
+// Serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
