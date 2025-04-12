@@ -7,7 +7,7 @@ body {
 /* Glow on buttons */
 button {
   transition: all 0.3s ease;
-  box-shadow: 0 0 5px #8a2be2, 0 0 10px #8a2be2;
+  box-shadow: 0 0 5px #49bb65, 0 0 10px #0bac13;
 }
 
 button:hover {
@@ -23,7 +23,7 @@ input:focus, textarea:focus {
 
 /* Fancy text glow */
 .glow-text {
-  text-shadow: 0 0 10px #ff00ff, 0 0 20px #8a2be2;
+  text-shadow: 0 0 10px #27158d, 0 0 20px #8a2be2;
 }
 
 /* Smooth card pop-up */
